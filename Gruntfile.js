@@ -8,13 +8,9 @@ module.exports = function(grunt) {
         separator: ';',
       },
       dist: {
-        src: [
-          '/**/*.js',
-          '*.js',
-          '!test/*.js'
-          ],
+        src: ['public/**/*.js'],
         dest: 'public/dist/built.js',
-      },
+      }
     },
 
     mochaTest: {
@@ -39,12 +35,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          src: [
-            'public/dist/built.js'
-          ],
-          dest: [
-            'public/dist/min.js'
-          ]
+          'public/dist/built.js' : ['public/dist/built.min.js']
         }
       }
     },
@@ -96,7 +87,11 @@ module.exports = function(grunt) {
 
     shell: {
       prodServer: {
-      // FIXME
+        command: [
+            'git add *',
+            'git commit -m "Sending to Heroku"',
+            'git push heroku master'
+        ].join('&&')
       }
     },
   });
@@ -131,15 +126,25 @@ module.exports = function(grunt) {
     'mochaTest'
   ]);
 
+  grunt.registerTask('prodServer', [
+    'shell:prodServer'
+  ]);
+
   grunt.registerTask('build', [
-      // FIXME
+      // 'nodemon',
+      'jshint',
+      'concat',
+      'uglify',
+      'cssmin',
+      'mochaTest'
+
   ]);
 
   grunt.registerTask('upload', function(n) {
     if(grunt.option('prod')) {
       // add your production server task here
       // string that represents a commandline command
-      // FIXME
+      grunt.task.run(['prodServer']);
     } else {
       grunt.task.run([ 'server-dev' ]);
     }
@@ -147,7 +152,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('deploy', [
     // add your deploy tasks here
-      // FIXME
+     grunt.task.run([ 'build', 'upload' ])
   ]);
 
 
